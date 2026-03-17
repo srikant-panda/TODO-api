@@ -1,7 +1,7 @@
 from pydantic import BaseModel,Field,ConfigDict,field_validator
 from uuid import UUID,uuid4
 from datetime import date
-from typing import Literal
+# from typing import Literal
 
 class Base(BaseModel):
     msg : str
@@ -15,25 +15,31 @@ class Todo(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
 
-    # @field_validator('status',mode='after')
-    # @classmethod
-    # def __status_validator(cls,payload : str):
-    #     VALID_STATUS : list[str] = ['todo','in-progress','done']
-    #     f_payload = payload.lower()
-
-    #     if f_payload not in VALID_STATUS:
-    #         raise ValueError(f"Invlaid color '{payload}'. must be one of: {', '.join(VALID_STATUS)}")
-    #     return f_payload
-
 
 
 class TodoOut(Base):
     todo : Todo
+    api_count : int
 class TodoFetch(Base):
     fetched_todos : list[Todo]
+    api_count : int
 
 class TodoRequest(BaseModel):
     description : str = Field(
         ...,
         title= "Name of the Task"
     )
+
+class validator(BaseModel):
+    status : str
+
+
+    @field_validator('status',mode='after')
+    @classmethod
+    def __status_validator(cls,payload : str):
+        VALID_STATUS : list[str] = ['todo','in-progress','done']
+        f_payload = payload.lower()
+
+        if f_payload not in VALID_STATUS:
+            raise ValueError(f"Invlaid status value.")
+        return f_payload
