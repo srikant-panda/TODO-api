@@ -1,11 +1,13 @@
 from fastapi import APIRouter,Depends,HTTPException
 from passlib.context import CryptContext
-from ..models import UserModel
-from .userPydanticModel import UserCreateOut,User,UserSignIn,Base,UserSignInResponse
+from app.models import UserModel
+from .userPydanticModel import UserCreateOut,User,UserSignIn,Base,JwtOut
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from ..config import get_db
-from ..services import HashService
+from app.config import get_db
+from app.services import HashService,JwtService
+
+
 user_router = APIRouter(prefix='/user',tags=['User'])
 
 pwd_context = CryptContext(schemes=['argon2'],deprecated = 'auto')
@@ -26,7 +28,7 @@ async def signup(data : User,db: AsyncSession = Depends(get_db)) -> UserCreateOu
 
 
 
-@user_router.post('/signin')
+@user_router.post('/signin',response_model=JwtOut)
 async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db)):
     user_db_result = await db.execute(select(UserModel).where(UserModel.email == signin_payload.email))
     user_model = user_db_result.scalar_one_or_none()
@@ -39,4 +41,6 @@ async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db
     if not validate_result:
         raise HTTPException(detail=Base(msg="Password not match.",error="Unauthorized request").model_dump(),status_code=401)
     
-    return UserSignInResponse(token="Token",msg="User Signed in")
+    token = JwtService().encode(email=signin_payload.email)
+    
+    return JwtOut(jwt_token=token,msg="User Signed in")

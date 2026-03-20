@@ -32,3 +32,6 @@ class UserSignIn(BaseModel):
 
 class UserSignInResponse(Base):
     token : str
+
+class JwtOut(Base):
+    jwt_token : str

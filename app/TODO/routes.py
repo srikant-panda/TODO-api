@@ -6,13 +6,15 @@ from slowapi.util import get_remote_address
 import time
 # from .database import todo_db as db
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordBearer
+from app.services import JwtService
 from sqlalchemy import select,delete
-from ..models import TodoModel
-from ..config.db import get_db
+from app.models import TodoModel,UserModel
+from app.config.db import get_db
 # import asyncio
 
 limiter = Limiter(key_func=get_remote_address)
-
+OAuthSchema = OAuth2PasswordBearer(tokenUrl='api/user/signin')
 
 todo_router = APIRouter(
     prefix="/todo",
@@ -45,20 +47,39 @@ async def create_todo(request:Request,data : TodoRequest,db : AsyncSession = Dep
         api_count=request.app.state.count_db[request['path']],
     )
 
+async def get_correct_user(token : str = Depends(OAuthSchema),db: AsyncSession = Depends(get_db)) -> str:
+    payload = JwtService().decode(token=token)
+    if payload is None:
+        raise HTTPException(
+            detail='Invalid Token',
+            status_code=401
+        )
+    email :str = payload.get('email') # type: ignore
+    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    user = result.scalars().first()
+
+    if not user:
+        raise   HTTPException(
+            detail='User Not Found',
+            status_code=401
+        )
+
+    return email
+ 
 
 
 @todo_router.get('/fetch',response_model=TodoFetch | Base)
 @limiter.limit("15/minute")
-async def fetch_todo(request : Request , db: AsyncSession = Depends(get_db)) -> TodoFetch|JSONResponse:
+async def fetch_todo(request : Request , db: AsyncSession = Depends(get_db),current_user : str = Depends(get_correct_user)) -> TodoFetch | HTTPException:
     todo_db_result = await db.execute(select(TodoModel))   # it gives a listof tupels , each tuple belongs to a row
     todo_models = todo_db_result.scalars().all()   # scalers() makes the todo_db_result into orm models and .all() make it a respective TodoModel.
     print(todo_models)
     todos = [Todo.model_validate(todo_model) for todo_model in todo_models]
     if todos:
-        return TodoFetch(fetched_todos = todos,msg="Todo fetched.",api_count=request.app.state.count_db[request['path']])
+        return TodoFetch(fetched_todos = todos,email = current_user,msg="Todo fetched.",api_count=request.app.state.count_db[request['path']])
     
-    return JSONResponse(
-        content=Base(msg="No todo found.").model_dump(),
+    return HTTPException(
+        detail="No todo found.",
         status_code=404
     )
 
