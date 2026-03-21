@@ -1,7 +1,8 @@
+import email
 from pydantic import BaseModel,Field,ConfigDict,field_validator
 from uuid import UUID,uuid4
 from datetime import datetime
-# from typing import Literal
+
 
 class Base(BaseModel):
     msg : str
@@ -11,11 +12,10 @@ class Todo(BaseModel):
     id : UUID = Field(default_factory=uuid4)
     description : str
     catagory : str 
+    user_id : UUID
     status : str = 'todo'
     created_at : datetime = Field(default_factory=datetime.now)
     model_config = ConfigDict(extra='forbid',from_attributes=True)
-
-
 
 
 class TodoOut(Base):
@@ -35,19 +35,16 @@ class TodoRequest(BaseModel):
         ...,
         title= "Catagory of the task."
     )
-
 class validator(BaseModel):
     status : str
 
 
-    # @field_validator('status',mode='after')
-    # @classmethod
     @field_validator('status',mode='after')
     @classmethod
-    def status_validator(cls,payload : str):
+    def status_validator(cls,payload : str) -> str | None:
         VALID_STATUS : list[str] = ['todo','in-progress','done']
         f_payload = payload.lower()
 
         if f_payload not in VALID_STATUS:
-            raise ValueError(f"Invalid status value.")
+            return None
         return f_payload

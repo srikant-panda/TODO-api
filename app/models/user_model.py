@@ -1,9 +1,9 @@
+
 from ..config.db import Base,DEFAULT_SCHEMA_NAME
 from datetime import datetime
 from uuid import UUID,uuid4
-from pydantic import EmailStr
 from sqlalchemy import Column,String,DateTime,func,Uuid,CHAR
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column, relationship
 
 
 
@@ -24,7 +24,7 @@ class UserModel(Base):
         nullable=False,
         index=True,
     )
-    email : Mapped[EmailStr] = mapped_column(
+    email : Mapped[str] = mapped_column(
         String(200),
         nullable=False,
         unique=True,
@@ -38,6 +38,12 @@ class UserModel(Base):
         String,
         nullable=False,
     )
+    todo = relationship(
+        "TodoModel",
+        back_populates="user",
+        cascade="all, delete"
+    )
+
     created_at : Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default= func.now()

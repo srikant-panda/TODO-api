@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from app.models import UserModel
 from .userPydanticModel import UserCreateOut,User,UserSignIn,Base,JwtOut
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select,exists
 from app.config import get_db
 from app.services import HashService,JwtService
 
@@ -14,8 +14,11 @@ pwd_context = CryptContext(schemes=['argon2'],deprecated = 'auto')
 
 
 @user_router.post('/signup',response_model= UserCreateOut | Base ,status_code=201)
-async def signup(data : User,db: AsyncSession = Depends(get_db)) -> UserCreateOut | Base:
+async def signup(data : User,db: AsyncSession = Depends(get_db)) -> UserCreateOut | Base:    # pyright: ignore[reportCallInDefaultInitializer]
     try:
+        is_exist = await db.execute(select(exists().where(UserModel.email==data.email)))
+        if is_exist.scalar():
+            raise HTTPException(detail="User with this email already exist",status_code=404)
         data.password = HashService(pwd_context=pwd_context).hash_password(data.password)
         user_model = UserModel(**data.model_dump())
         db.add(user_model)
@@ -27,9 +30,8 @@ async def signup(data : User,db: AsyncSession = Depends(get_db)) -> UserCreateOu
         return Base(msg="Invalid role",error=str(v))
 
 
-
 @user_router.post('/signin',response_model=JwtOut)
-async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db)):
+async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db)):  # pyright: ignore[reportCallInDefaultInitializer]
     user_db_result = await db.execute(select(UserModel).where(UserModel.email == signin_payload.email))
     user_model = user_db_result.scalar_one_or_none()
 
@@ -41,6 +43,6 @@ async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db
     if not validate_result:
         raise HTTPException(detail=Base(msg="Password not match.",error="Unauthorized request").model_dump(),status_code=401)
     
-    token = JwtService().encode(email=signin_payload.email)
+    token = JwtService().encode(id=str(user_model.id))
     
     return JwtOut(jwt_token=token,msg="User Signed in")

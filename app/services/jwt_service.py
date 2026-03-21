@@ -1,16 +1,16 @@
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta, timezone
 from jose import JWTError,jwt
 from typing import Any
 
 class JwtService:
-    SECRET = "Lucky Bhsai Jaiho"
+    SECRET = "Lucky Bhai Jaiho"
     ALGORITHM = 'HS256'
     EXPIRY_TIME_IN_MINUTES = 5
 
-    def encode(self,email:str) -> str:
-        data = {"email":email}
+    def encode(self,id:str) -> str:
+        data = {"id":id}
 
-        expire = datetime.now() + timedelta(minutes=JwtService.EXPIRY_TIME_IN_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=JwtService.EXPIRY_TIME_IN_MINUTES)
 
         data.update({"exp" : expire})  # type: ignore
 
@@ -22,7 +22,7 @@ class JwtService:
     
     def decode(self,token : str) -> dict[str,Any] | None:
         try:
-            return jwt.decode(token,JwtService.SECRET,JwtService.ALGORITHM)
+            return jwt.decode(token,JwtService.SECRET,algorithms=[JwtService.ALGORITHM])
         except JWTError as ex:
             print(f"Exeption at jwt : {str(ex)}")
             return None

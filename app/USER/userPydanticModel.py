@@ -1,6 +1,5 @@
 from pydantic import BaseModel,Field,ConfigDict,EmailStr,field_validator
 from uuid import UUID,uuid4
-from datetime import datetime
 
 class Base(BaseModel):
     msg : str
@@ -12,7 +11,7 @@ class User(BaseModel):
     password : str
     email: EmailStr
     role : str = Field(default='user')
-    model_config = ConfigDict(extra='forbid',from_attributes=True)
+    model_config = ConfigDict(extra='forbid',from_attributes=True)  # pyright: ignore[reportUnannotatedClassAttribute]
 
     @field_validator('role',mode='after')
     @classmethod

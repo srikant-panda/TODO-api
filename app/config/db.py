@@ -10,7 +10,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession,async_sessionmaker,create_async_engine
 
 # Inherits the base class which used to create SQLAlchemy models.
-from sqlalchemy.orm import DeclarativeBase,declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
 # Connection String
 DATABASE_URL = "postgresql+asyncpg://admin:admin@localhost:5432/todo_db"
@@ -24,7 +24,7 @@ metadata = MetaData(schema=DEFAULT_SCHEMA_NAME)
 
 # Parent class of all ORM models
 class Base(DeclarativeBase):
-    metadata = metadata
+    metadata = metadata    # pyright: ignore[reportUnannotatedClassAttribute]
 
 # Handels the actual connection with db
 engine = create_async_engine(
