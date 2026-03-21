@@ -1,3 +1,143 @@
+# TODO API
+
+FastAPI-based TODO backend with JWT authentication, PostgreSQL, SQLAlchemy async ORM, and per-user TODO access control.
+
+## Current Status
+
+- User signup and signin are implemented.
+- JWT token generation and validation are implemented.
+- TODO CRUD routes are protected and scoped to the authenticated user.
+- Rate limiting is enabled on selected TODO routes.
+- PostgreSQL is used as the persistence layer.
+
+## Tech Stack
+
+- `FastAPI`
+- `SQLAlchemy` (async) + `asyncpg`
+- `PostgreSQL`
+- `Pydantic v2`
+- `python-jose` (JWT)
+- `passlib` + `argon2-cffi` (password hashing)
+- `slowapi` (rate limiting)
+- `uvicorn`
+
+## Project Structure
+
+```text
+TODO/
+├── main.py
+├── pyproject.toml
+├── docker-compose.yml
+├── app/
+│   ├── TODO/
+│   │   ├── pydantic_schema.py
+│   │   └── routes.py
+│   ├── USER/
+│   │   ├── userPydanticModel.py
+│   │   └── user_route.py
+│   ├── config/
+│   │   └── db.py
+│   ├── dependency/
+│   │   └── depency.py
+│   ├── models/
+│   │   ├── todo_model.py
+│   │   └── user_model.py
+│   └── services/
+│       ├── jwt_service.py
+│       └── password_hash.py
+└── README.md
+```
+
+## API Base URL
+
+- Local: `http://127.0.0.1:8000`
+- All routes in this app are mounted under: `/api`
+
+## Authentication Flow
+
+1. Create user with `POST /api/user/signup`.
+2. Sign in with `POST /api/user/signin` to receive a JWT.
+3. Send token in header for protected routes:
+   - `Authorization: Bearer <your_token>`
+
+## Endpoints
+
+### User
+
+- `POST /api/user/signup`
+  - Create a new user.
+- `POST /api/user/signin`
+  - Authenticate user and return JWT token.
+
+### TODO (Protected)
+
+- `POST /api/todo/create`
+  - Create a TODO for the authenticated user.
+- `GET /api/todo/fetch`
+  - Fetch all TODOs for the authenticated user.
+- `GET /api/todo/fetchById/{id}`
+  - Fetch a specific TODO by UUID (only if owned by authenticated user).
+- `PUT /api/todo/update`
+  - Update TODO description by UUID.
+- `DELETE /api/todo/delete/{id}`
+  - Delete TODO by UUID.
+- `GET /api/todo/fetchBystatus`
+  - Fetch TODOs by status (`todo`, `in-progress`, `done`).
+- `PUT /api/todo/updateStatus`
+  - Update TODO status by UUID.
+
+## Rate Limits
+
+- `POST /api/todo/create` -> `10/minute`
+- `GET /api/todo/fetch` -> `15/minute`
+
+## Run Locally
+
+### 1) Start PostgreSQL (Docker)
+
+```bash
+docker compose up -d
+```
+
+Default database values from `docker-compose.yml`:
+
+- Host: `localhost`
+- Port: `5432`
+- DB: `todo_db`
+- User: `admin`
+- Password: `admin`
+
+### 2) Install dependencies
+
+Using `uv`:
+
+```bash
+uv sync
+```
+
+Or using `pip`:
+
+```bash
+pip install -r requirement.txt
+```
+
+### 3) Start API server
+
+```bash
+uvicorn main:app --reload
+```
+
+## API Docs
+
+- Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+## Notes
+
+- Database schema name is configured as `TODO_S` in `app/config/db.py`.
+- On app startup, schema and tables are created if they do not already exist.
+- Current DB URL is hardcoded in `app/config/db.py`:
+  - `postgresql+asyncpg://admin:admin@localhost:5432/todo_db`
 # TODO API - Learning FastAPI Project
 
 A modern REST API for TODO management built with **FastAPI**. This project demonstrates core web development concepts including API design, data validation, and asynchronous programming.
