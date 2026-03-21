@@ -1,172 +1,120 @@
 # TODO API
 
-FastAPI-based TODO backend with JWT authentication, PostgreSQL, SQLAlchemy async ORM, and per-user TODO access control.
+FastAPI-based TODO backend with **JWT authentication**, **PostgreSQL**, **SQLAlchemy async ORM**, and **per-user TODO access control**.
 
 ## Current Status
 
-- User signup and signin are implemented.
-- JWT token generation and validation are implemented.
-- TODO CRUD routes are protected and scoped to the authenticated user.
-- Rate limiting is enabled on selected TODO routes.
-- PostgreSQL is used as the persistence layer.
+✅ Complete Features:
+- User authentication (signup/signin) with JWT tokens
+- Password hashing with argon2-cffi
+- Per-user TODO management with full CRUD operations
+- Rate limiting on create and fetch endpoints
+- Automatic schema and table creation on startup
+- Comprehensive error handling with proper HTTP status codes
+- API response tracking/counting
 
 ## Tech Stack
 
-- `FastAPI`
-- `SQLAlchemy` (async) + `asyncpg`
-- `PostgreSQL`
-- `Pydantic v2`
-- `python-jose` (JWT)
-- `passlib` + `argon2-cffi` (password hashing)
-- `slowapi` (rate limiting)
-- `uvicorn`
+- **FastAPI** - Modern async web framework
+- **SQLAlchemy** (async) + **asyncpg** - Async ORM
+- **PostgreSQL** - Relational database
+- **Pydantic v2** - Data validation and serialization
+- **python-jose** - JWT token handling
+- **passlib + argon2-cffi** - Secure password hashing
+- **slowapi** - Rate limiting
+- **uvicorn** - ASGI server
 
 ## Project Structure
 
 ```text
-TODO/
-├── main.py
-├── pyproject.toml
-├── docker-compose.yml
-├── app/
-│   ├── TODO/
-│   │   ├── pydantic_schema.py
-│   │   └── routes.py
-│   ├── USER/
-│   │   ├── userPydanticModel.py
-│   │   └── user_route.py
-│   ├── config/
-│   │   └── db.py
-│   ├── dependency/
-│   │   └── depency.py
-│   ├── models/
-│   │   ├── todo_model.py
-│   │   └── user_model.py
-│   └── services/
-│       ├── jwt_service.py
-│       └── password_hash.py
-└── README.md
+.
+├── main.py                          # FastAPI app with lifespan events
+├── pyproject.toml                   # Project metadata and dependencies
+├── docker-compose.yml               # PostgreSQL container config
+├── requirement.txt                  # pip dependencies
+├── pyrightconfig.json               # Pyright type checker config
+├── README.md
+└── app/
+    ├── __init__.py
+    ├── config/
+    │   ├── __init__.py
+    │   └── db.py                    # Database config and engine
+    ├── dependency/
+    │   ├── __init__.py
+    │   └── depency.py               # Dependency injection utilities
+    ├── models/
+    │   ├── __init__.py
+    │   ├── todo_model.py            # SQLAlchemy TODO model
+    │   └── user_model.py            # SQLAlchemy User model
+    ├── services/
+    │   ├── __init__.py
+    │   ├── jwt_service.py           # JWT encoding/decoding
+    │   └── password_hash.py         # Password hashing service
+    ├── TODO/
+    │   ├── __init__.py
+    │   ├── pydantic_schema.py       # Pydantic models for TODO
+    │   └── routes.py                # TODO API endpoints
+    └── USER/
+        ├── __init__.py
+        ├── user_route.py            # User API endpoints
+        └── userPydanticModel.py     # Pydantic models for User
 ```
-
-## API Base URL
-
-- Local: `http://127.0.0.1:8000`
-- All routes in this app are mounted under: `/api`
 
 ## Authentication Flow
 
-1. Create user with `POST /api/user/signup`.
-2. Sign in with `POST /api/user/signin` to receive a JWT.
-3. Send token in header for protected routes:
-   - `Authorization: Bearer <your_token>`
-
-## Endpoints
-
-### User
-
-- `POST /api/user/signup`
-  - Create a new user.
-- `POST /api/user/signin`
-  - Authenticate user and return JWT token.
-
-### TODO (Protected)
-
-- `POST /api/todo/create`
-  - Create a TODO for the authenticated user.
-- `GET /api/todo/fetch`
-  - Fetch all TODOs for the authenticated user.
-- `GET /api/todo/fetchById/{id}`
-  - Fetch a specific TODO by UUID (only if owned by authenticated user).
-- `PUT /api/todo/update`
-  - Update TODO description by UUID.
-- `DELETE /api/todo/delete/{id}`
-  - Delete TODO by UUID.
-- `GET /api/todo/fetchBystatus`
-  - Fetch TODOs by status (`todo`, `in-progress`, `done`).
-- `PUT /api/todo/updateStatus`
-  - Update TODO status by UUID.
-
-## Rate Limits
-
-- `POST /api/todo/create` -> `10/minute`
-- `GET /api/todo/fetch` -> `15/minute`
-
-## Run Locally
-
-### 1) Start PostgreSQL (Docker)
-
-```bash
-docker compose up -d
-```
-
-Default database values from `docker-compose.yml`:
-
-- Host: `localhost`
-- Port: `5432`
-- DB: `todo_db`
-- User: `admin`
-- Password: `admin`
-
-### 2) Install dependencies
-
-Using `uv`:
-
-```bash
-uv sync
-```
-
-Or using `pip`:
-
-```bash
-pip install -r requirement.txt
-```
-
-### 3) Start API server
-
-```bash
-uvicorn main:app --reload
-```
-
-## API Docs
-
-- Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-
-## Notes
-
-- Database schema name is configured as `TODO_S` in `app/config/db.py`.
-- On app startup, schema and tables are created if they do not already exist.
-- Current DB URL is hardcoded in `app/config/db.py`:
-  - `postgresql+asyncpg://admin:admin@localhost:5432/todo_db`
-# TODO API - Learning FastAPI Project
-
-A modern REST API for TODO management built with **FastAPI**. This project demonstrates core web development concepts including API design, data validation, and asynchronous programming.
-
-## Learning Objectives
-
-This project teaches:
-- **FastAPI Fundamentals**: Building efficient, production-ready APIs
-- **Pydantic Validation**: Type hints and data validation
-- **REST Principles**: CRUD operations and proper HTTP status codes
-- **UUID Management**: Working with unique identifiers
-- **Code Organization**: Modular project structure with routers and models
-
-## Features
-
-- Create TODO: Add new tasks with descriptions
-- Fetch All TODOs: Retrieve all tasks in the database
-- Fetch by ID: Get a specific task by UUID
-- Task Status: Track task status (todo, in-progress, done)
-- Timestamps: Automatic creation date tracking
-- Type Safety: Full type hints with Pydantic models
+1. **Signup**: `POST /api/user/signup` - Create a new user account
+2. **Signin**: `POST /api/user/signin` - Authenticate and receive JWT token
+3. **Protected Routes**: Send JWT in `Authorization: Bearer <token>` header
 
 ## API Endpoints
 
-### POST `/api/todo/create`
-Create a new TODO task
+### User Endpoints
+
+#### POST `/api/user/signup`
+Create a new user account
 ```json
 {
-  "description": "Learn FastAPI"
+  "email": "user@example.com",
+  "password": "securepassword",
+  "role": "user"
+}
+```
+**Response** (201 Created):
+```json
+{
+  "user": {
+    "id": "uuid-here",
+    "email": "user@example.com",
+    "role": "user"
+  },
+  "msg": "User created."
+}
+```
+
+#### POST `/api/user/signin`
+Authenticate user and get JWT token
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+**Response** (200 OK):
+```json
+{
+  "jwt_token": "eyJhbGc...",
+  "msg": "User Signed in"
+}
+```
+
+### TODO Endpoints (All Protected - Require JWT)
+
+#### POST `/api/todo/create` ⚡ Rate Limited: 10/minute
+Create a new TODO
+```json
+{
+  "description": "Complete project documentation",
+  "catagory": "Work"
 }
 ```
 **Response** (200 OK):
@@ -174,28 +122,218 @@ Create a new TODO task
 {
   "todo": {
     "id": "uuid-here",
-    "description": "Learn FastAPI",
+    "description": "Complete project documentation",
+    "catagory": "Work",
     "status": "todo",
-    "created_at": "2026-03-16"
+    "user_id": "uuid-here",
+    "created_at": "2026-03-21T10:30:00"
   },
-  "msg": "Todo Created."
+  "msg": "Todo Created.",
+  "api_count": 1
 }
 ```
 
-### GET `/api/todo/fetch`
-Fetch all TODO tasks
+#### GET `/api/todo/fetch` ⚡ Rate Limited: 15/minute
+Fetch all TODOs for authenticated user
 **Response** (200 OK):
 ```json
 {
   "fetched_todos": [
     {
       "id": "uuid-1",
-      "description": "Learn FastAPI",
+      "description": "Task 1",
+      "catagory": "Work",
       "status": "todo",
-      "created_at": "2026-03-16"
+      "user_id": "uuid-here",
+      "created_at": "2026-03-21T10:30:00"
     }
   ],
-  "msg": "Todo fetched."
+  "msg": "Todo fetched.",
+  "api_count": 2
+}
+```
+
+#### GET `/api/todo/fetchById/{id}`
+Fetch a specific TODO by UUID (owned by user)
+**Response** (200 OK):
+```json
+{
+  "todo": {
+    "id": "uuid-1",
+    "description": "Task 1",
+    "catagory": "Work",
+    "status": "todo",
+    "user_id": "uuid-here",
+    "created_at": "2026-03-21T10:30:00"
+  },
+  "msg": "Task found.",
+  "api_count": 3
+}
+```
+
+#### PUT `/api/todo/update`
+Update TODO description by ID
+**Query Parameters:**
+- `id` (UUID) - TODO ID
+- `new_description` (string) - New description text
+
+**Response** (200 OK):
+```json
+{
+  "todo": {
+    "id": "uuid-1",
+    "description": "Updated description",
+    "catagory": "Work",
+    "status": "todo",
+    "user_id": "uuid-here",
+    "created_at": "2026-03-21T10:30:00",
+    "updated_at": "2026-03-21T11:00:00"
+  },
+  "msg": "Todo update sucessful.",
+  "api_count": 4
+}
+```
+
+#### PUT `/api/todo/updateStatus`
+Update TODO status (todo → in-progress → done)
+**Query Parameters:**
+- `id` (UUID) - TODO ID
+- `new_status` (string) - One of: `todo`, `in-progress`, `done`
+
+**Response** (200 OK):
+```json
+{
+  "todo": {
+    "id": "uuid-1",
+    "description": "Task 1",
+    "catagory": "Work",
+    "status": "in-progress",
+    "user_id": "uuid-here"
+  },
+  "msg": "Task status updated.",
+  "api_count": 5
+}
+```
+
+#### DELETE `/api/todo/delete/{id}`
+Delete TODO by UUID
+**Response** (200 OK):
+```json
+{
+  "msg": "Todo Deleted, Todo UUID : uuid-1",
+  "error": null
+}
+```
+
+#### GET `/api/todo/fetchBystatus`
+Fetch all TODOs with a specific status
+**Query Parameters:**
+- `status` (string) - One of: `todo`, `in-progress`, `done`
+
+**Response** (200 OK):
+```json
+{
+  "fetched_todos": [
+    {
+      "id": "uuid-1",
+      "description": "Task 1",
+      "catagory": "Work",
+      "status": "in-progress",
+      "user_id": "uuid-here",
+      "created_at": "2026-03-21T10:30:00"
+    }
+  ],
+  "msg": "Task found.",
+  "api_count": 6
+}
+```
+
+## Rate Limits
+
+- `POST /api/todo/create` - **10 requests/minute** per IP
+- `GET /api/todo/fetch` - **15 requests/minute** per IP
+
+## Setup & Installation
+
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.10+
+
+### 1) Start PostgreSQL
+
+```bash
+docker compose up -d
+```
+
+Database credentials (from `docker-compose.yml`):
+- **Host**: `localhost`
+- **Port**: `5432`
+- **Database**: `todo_db`
+- **User**: `admin`
+- **Password**: `admin`
+
+### 2) Install Python Dependencies
+
+Using `uv` (recommended):
+```bash
+uv sync
+```
+
+Or using `pip`:
+```bash
+pip install -r requirement.txt
+```
+
+### 3) Run the Application
+
+```bash
+uvicorn main:app --reload
+```
+
+The API will be available at: **http://127.0.0.1:8000**
+
+## Interactive API Documentation
+
+- **Swagger UI** (interactive): [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **ReDoc** (read-only): [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+## Configuration
+
+### Database Schema
+
+- Schema name: `TODO_S` (configured in [app/config/db.py](app/config/db.py))
+- Tables created automatically on startup:
+  - `"TODO_S".user` - User accounts and credentials
+  - `"TODO_S".todo` - TODO items linked to users
+
+### Database URL
+
+Default connection string (in [app/config/db.py](app/config/db.py)):
+```
+postgresql+asyncpg://admin:admin@localhost:5432/todo_db
+```
+
+### Environment & Startup
+
+- Schema and tables are created automatically via SQLAlchemy on app startup
+- No manual database initialization required
+- Connection pooling is handled by SQLAlchemy's async engine
+
+## Error Handling
+
+API returns standard HTTP status codes:
+- **201** - Created (successful signup)
+- **200** - OK (successful request)
+- **400** - Bad Request (invalid input/UUID)
+- **401** - Unauthorized (invalid token, wrong password)
+- **404** - Not Found (user/TODO not found)
+- **429** - Too Many Requests (rate limit exceeded)
+
+Error response format:
+```json
+{
+  "msg": "Error message",
+  "error": "Error details or null"
 }
 ```
 
@@ -289,13 +427,6 @@ class Todo(BaseModel):
 def create_todo(data: TodoRequest):
     return Response(content=..., status_code=200)
 ```
-
-### 4. **In-Memory Database (Learning Pattern)**
-```python
-# database.py - Simple list-based storage for demonstration
-todo_db = []
-```
-*Note: This is for learning purposes. Production apps should use PostgreSQL, MongoDB, etc.*
 
 ## Next Steps to Enhance Learning
 
