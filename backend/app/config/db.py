@@ -18,14 +18,10 @@ from sqlalchemy.orm import DeclarativeBase
 # Use "db" instead of "localhost" when running inside Docker
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@db:5432/todo_db")
 
-print(f"DEBUG: RAW DATABASE_URL: {DATABASE_URL}")
-
 # Render provides a connection string that starts with postgres://
 # asyncpg requires it to start with postgresql+asyncpg://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
-
-print(f"DEBUG: FINAL DATABASE_URL: {DATABASE_URL}")
 
 # Scheme Name
 DEFAULT_SCHEMA_NAME = "TODO_S"
