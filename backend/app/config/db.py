@@ -15,7 +15,8 @@ import os
 from sqlalchemy.orm import DeclarativeBase
 
 # Connection String
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@localhost:5432/todo_db")
+# Use "db" instead of "localhost" when running inside Docker
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@db:5432/todo_db")
 
 # Scheme Name
 DEFAULT_SCHEMA_NAME = "TODO_S"
