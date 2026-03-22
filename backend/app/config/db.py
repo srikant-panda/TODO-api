@@ -9,11 +9,13 @@ from sqlalchemy import MetaData
 '''
 from sqlalchemy.ext.asyncio import AsyncSession,async_sessionmaker,create_async_engine
 
+import os
+
 # Inherits the base class which used to create SQLAlchemy models.
 from sqlalchemy.orm import DeclarativeBase
 
 # Connection String
-DATABASE_URL = "postgresql+asyncpg://admin:admin@localhost:5432/todo_db"
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@localhost:5432/todo_db")
 
 # Scheme Name
 DEFAULT_SCHEMA_NAME = "TODO_S"

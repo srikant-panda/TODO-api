@@ -1,0 +1,54 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  --bg-950: #020617;
+  --bg-900: #0b1220;
+  --bg-800: #111c31;
+  --text-50: #f8fafc;
+  --text-200: #cbd5e1;
+  --text-400: #94a3b8;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --ring: rgba(56, 189, 248, 0.35);
+  --surface: rgba(15, 23, 42, 0.6);
+  --surface-border: rgba(148, 163, 184, 0.2);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #111c31 0%, #020617 55%);
+  color: var(--text-200);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

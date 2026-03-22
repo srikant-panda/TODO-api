@@ -12,7 +12,7 @@ from app.models import TodoModel,UserModel
 from app.config.db import get_db
 # import asyncio
 
-limiter = Limiter(key_func=get_remote_address)
+# limiter = Limiter(key_func=get_remote_address)
 OAuthSchema = OAuth2PasswordBearer(tokenUrl='api/user/signin')
 
 todo_router = APIRouter(
@@ -50,7 +50,7 @@ async def check_id(id : str) -> UUID:
 
 
 @todo_router.post('/create',response_model=TodoOut | Base)
-@limiter.limit("10/minute")  # pyright: ignore[reportUnknownMemberType, reportUntypedFunctionDecorator]
+# @limiter.limit("10/minute")  # pyright: ignore[reportUnknownMemberType, reportUntypedFunctionDecorator]
 async def create_todo(request:Request,data : TodoRequest,db : AsyncSession = Depends(get_db),current_user : UUID = Depends(get_correct_user)) -> TodoOut:
     todo = TodoModel(**Todo(description=data.description,catagory=data.catagory,user_id=current_user).model_dump())
     db.add(todo)
@@ -60,7 +60,6 @@ async def create_todo(request:Request,data : TodoRequest,db : AsyncSession = Dep
     return TodoOut(
         todo= Todo.model_validate(todo),
         msg="Todo Created.",
-        api_count=request.app.state.count_db[request['path']],
     )
 
 
@@ -68,14 +67,14 @@ async def create_todo(request:Request,data : TodoRequest,db : AsyncSession = Dep
 
 
 @todo_router.get('/fetch',response_model=TodoFetch)
-@limiter.limit("15/minute")
+# @limiter.limit("15/minute")
 async def fetch_todo(request : Request , db: AsyncSession = Depends(get_db),current_user:str = Depends(get_correct_user)) -> TodoFetch :
     todo_db_result = await db.execute(select(TodoModel).where(TodoModel.user_id == current_user))   # it gives a listof tupels , each tuple belongs to a row
     todo_models = todo_db_result.scalars().all()   # scalers() makes the todo_db_result into orm models and .all() make it a respective TodoModel.
     print(todo_models)
     todos = [Todo.model_validate(todo_model) for todo_model in todo_models]
     if todos:
-        return TodoFetch(fetched_todos = todos,msg="Todo fetched.",api_count=request.app.state.count_db[request['path']])
+        return TodoFetch(fetched_todos = todos,msg="Todo fetched.")
     
     raise HTTPException(
         detail="No todo found.",
@@ -91,7 +90,7 @@ async def get_todo_by_id(request:Request , id : UUID = Depends(check_id),db : As
                 detail='Task not found.Check your',
                 status_code=404
                 )
-        return TodoOut(todo=Todo.model_validate(todo_model),msg="Task found.",api_count = request.app.state.count_db[request['path']])
+        return TodoOut(todo=Todo.model_validate(todo_model),msg="Task found.")
 @todo_router.put('/update',response_model= TodoOut)
 async def update_task_by_id(request : Request,new_description : str,id : UUID = Depends(check_id),db : AsyncSession = Depends(get_db),current_user : str = Depends(get_correct_user)) -> TodoOut:
     todo_db_result = await db.execute(select(TodoModel).where(TodoModel.id == id , TodoModel.user_id==current_user))
@@ -102,7 +101,7 @@ async def update_task_by_id(request : Request,new_description : str,id : UUID = 
     todo_model.description = new_description
     await db.commit()
     await db.refresh(todo_model)
-    return TodoOut(todo = Todo.model_validate(todo_model),msg="Todo update sucessful.",api_count=request.app.state.count_db[request['path']])
+    return TodoOut(todo = Todo.model_validate(todo_model),msg="Todo update sucessful.")
 
 @todo_router.delete('/delete/{id}',response_model= Base)
 async def delete_todo_by_id(id : UUID = Depends(check_id),db:AsyncSession = Depends(get_db),current_user : str = Depends(get_correct_user)) -> Base | None:
@@ -120,8 +119,8 @@ async def get_todos_by_status(request : Request,status : str,db : AsyncSession =
     todo_models = todo_db_result.scalars().all()
     todos = [Todo.model_validate(todo_model) for todo_model in todo_models]
     if todos:
-        return TodoFetch(fetched_todos=todos,msg="Task found.",api_count=request.app.state.count_db[request['path']])
-    raise HTTPException(detail=Base(msg="Task not found."),status_code=404)
+        return TodoFetch(fetched_todos=todos,msg="Task found.")
+    raise HTTPException(detail=Base(msg="Task not found.").model_dump(),status_code=404)
 
 @todo_router.put('/updateStatus',response_model=TodoOut|Base)
 async def update_status_by_id(request : Request,new_status : str,id : UUID = Depends(check_id),db:AsyncSession = Depends(get_db),current_user = Depends(get_correct_user)) -> TodoOut | JSONResponse:
@@ -131,7 +130,7 @@ async def update_status_by_id(request : Request,new_status : str,id : UUID = Dep
     if todo_model:
             todo_model.status = f_status.status
             await db.commit()
-            return TodoOut(todo=Todo.model_validate(todo_model),msg="Task status updated.",api_count = request.app.state.count_db[request['path']])
+            return TodoOut(todo=Todo.model_validate(todo_model),msg="Task status updated.")
     if f_status is None:
         raise HTTPException(detail='Invalid input.Must be one of these: todo,in-progress and done',status_code=400)
     raise HTTPException(

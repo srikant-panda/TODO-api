@@ -1,6 +1,7 @@
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI,Request,HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 # from fastapi.exceptions import RequestValidationError
 from slowapi import Limiter
 from slowapi.util import get_remote_address   # To get the ip address of user.
@@ -36,6 +37,19 @@ async def lifespan(app : FastAPI) :
 
 app = FastAPI(lifespan=lifespan)  # Call  the lifespan.
 
+# Frontend (Vite dev server or static host) — allows cookies/Authorization when using full API URL
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://[::1]:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 limiter = Limiter(key_func=get_remote_address)
 
 app.state.limiter = limiter
@@ -60,16 +74,16 @@ async def rate_limit_handler(request : Request,exec : RateLimitExceeded):
                 "detail" : "Too many requests. limit execeed"
             },
     )
-app.state.count_db = {}
+# app.state.count_db = {}
 
 @app.middleware('http')   #capture all http request
 async def request_detail(request : Request , call_next):
     path = request.url.path
     print(path)
-    if path in app.state.count_db:
-        app.state.count_db[path]+=1
-    else:
-        app.state.count_db[path] = 1
+    # if path in app.state.count_db:
+    #     app.state.count_db[path]+=1
+    # else:
+    #     app.state.count_db[path] = 1
     
     response = await call_next(request)
     return response
@@ -77,4 +91,10 @@ async def request_detail(request : Request , call_next):
 routers = [todo_router,user_router]
 for i in routers:
     app.include_router(router=i,prefix='/api')
-
+    
+@app.get("/api/health",response_model=dict[str,str],status_code=200,tags=["health"])
+async def health():
+    return {
+        "status" : "ok",
+        "system" : "up"
+    }

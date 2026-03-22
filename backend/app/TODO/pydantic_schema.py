@@ -20,11 +20,9 @@ class Todo(BaseModel):
 
 class TodoOut(Base):
     todo : Todo
-    api_count : int
 class TodoFetch(Base):
     fetched_todos : list[Todo]
     email  : str | None = None
-    api_count : int
 
 class TodoRequest(BaseModel):
     description : str = Field(
