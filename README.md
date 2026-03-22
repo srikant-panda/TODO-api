@@ -1,84 +1,87 @@
-# TODO API
+# Modern TODO Application (Full Stack)
 
-FastAPI-based TODO backend with **JWT authentication**, **PostgreSQL**, **SQLAlchemy async ORM**, and **per-user TODO access control**.
+A fast and secure TODO application built with **FastAPI** (Python) and **React** (TypeScript). Featuring **JWT Authentication**, **PostgreSQL** with async operations, and a polished **GSAP**-powered frontend.
 
-## Current Status
+## 🚀 Key Features
 
-✅ Complete Features:
-- User authentication (signup/signin) with JWT tokens
-- Password hashing with argon2-cffi
-- Per-user TODO management with full CRUD operations
-- Rate limiting on create and fetch endpoints
-- Automatic schema and table creation on startup
-- Comprehensive error handling with proper HTTP status codes
-- API response tracking/counting
+- ✅ **JWT Authentication**: Secure user registration and login.
+- ✅ **Protected Routes**: Frontend and backend protection for user data.
+- ✅ **Full CRUD**: Create, read, update, and delete TODOs tied to specific users.
+- ✅ **Async Operations**: High-performance backend using SQLAlchemy async ORM.
+- ✅ **Rate Limiting**: Security against brute-force and spam on API endpoints.
+- ✅ **Modern UI**: Smooth animations using GSAP and responsive React design.
+- ✅ **PostgreSQL Database**: Persistent storage with automatic schema management.
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **FastAPI** - Modern async web framework
-- **SQLAlchemy** (async) + **asyncpg** - Async ORM
-- **PostgreSQL** - Relational database
-- **Pydantic v2** - Data validation and serialization
-- **python-jose** - JWT token handling
-- **passlib + argon2-cffi** - Secure password hashing
-- **slowapi** - Rate limiting
-- **uvicorn** - ASGI server
+### Backend
+- **FastAPI**: Modern async web framework.
+- **SQLAlchemy (Async)**: Powerful ORM with **asyncpg**.
+- **PostgreSQL**: Production-ready relational database.
+- **Pydantic v2**: Strict data validation and serialization.
+- **python-jose**: JWT token handling.
+- **Argon2**: Industry-leading password hashing.
+- **Slowapi**: Middleware for rate limiting.
 
-## Configuration
+### Frontend
+- **React 19**: Latest React features for a dynamic UI.
+- **TypeScript**: Type safety for robust development.
+- **Vite**: Ultra-fast build tool and dev server.
+- **GSAP**: High-performance animations.
+- **React Router 7**: Modern routing and navigation.
 
-Create a `.env` file in the `backend/` directory with the following content:
-
-```env
-DATABASE_URL=postgresql+asyncpg://admin:admin@localhost:5432/todo_db
-```
-
-## Project Structure
+## 📂 Project Structure
 
 ```text
 .
-├── main.py                          # FastAPI app with lifespan events
-├── pyproject.toml                   # Project metadata and dependencies
-├── docker-compose.yml               # PostgreSQL container config
-├── requirement.txt                  # pip dependencies
-├── pyrightconfig.json               # Pyright type checker config
-├── README.md
-└── app/
-    ├── __init__.py
-    ├── config/
-    │   ├── __init__.py
-    │   └── db.py                    # Database config and engine
-    ├── dependency/
-    │   ├── __init__.py
-    │   └── depency.py               # Dependency injection utilities
-    ├── models/
-    │   ├── __init__.py
-    │   ├── todo_model.py            # SQLAlchemy TODO model
-    │   └── user_model.py            # SQLAlchemy User model
-    ├── services/
-    │   ├── __init__.py
-    │   ├── jwt_service.py           # JWT encoding/decoding
-    │   └── password_hash.py         # Password hashing service
-    ├── TODO/
-    │   ├── __init__.py
-    │   ├── pydantic_schema.py       # Pydantic models for TODO
-    │   └── routes.py                # TODO API endpoints
-    └── USER/
-        ├── __init__.py
-        ├── user_route.py            # User API endpoints
-        └── userPydanticModel.py     # Pydantic models for User
+├── backend/                # FastAPI Application
+│   ├── main.py             # Entry point & lifespan events
+│   ├── app/
+│   │   ├── config/         # DB & Engine config
+│   │   ├── models/         # SQLAlchemy Models
+│   │   ├── services/       # JWT & Hashing logic
+│   │   ├── TODO/           # Todo routes & schemas
+│   │   └── USER/           # User routes & schemas
+│   └── .env                # Database configuration
+├── frontend/               # React Application
+│   ├── src/
+│   │   ├── components/     # UI & Protected Routes
+│   │   ├── hooks/          # Custom Auth hooks
+│   │   ├── pages/          # Auth & Todo views
+│   │   └── services/       # API clients (Axios/Fetch)
+│   └── package.json
+└── README.md
 ```
 
-## Authentication Flow
+## ⚙️ Configuration
 
-1. **Signup**: `POST /api/user/signup` - Create a new user account
-2. **Signin**: `POST /api/user/signin` - Authenticate and receive JWT token
-3. **Protected Routes**: Send JWT in `Authorization: Bearer <token>` header
+### Backend Setup
+1. Navigate to `backend/`.
+2. Create a `.env` file:
+   ```env
+   DATABASE_URL=postgresql+asyncpg://admin:admin@localhost:5432/todo_db
+   ```
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run server: `uvicorn main:app --reload`
 
-## API Endpoints
+### Frontend Setup
+1. Navigate to `frontend/`.
+2. Install dependencies: `npm install`
+3. Run development server: `npm run dev`
 
-### User Endpoints
+## 🔐 Authentication Flow
 
-#### POST `/api/user/signup`
+1. **Signup**: `POST /api/user/signup` - Create a new user account.
+2. **Signin**: `POST /api/user/signin` - Authenticate and receive a JWT.
+3. **Authorization**: Include the token in the `Authorization: Bearer <token>` header for protected routes.
+
+---
+
+### Detailed API Reference
+
+#### User Endpoints
+
+##### POST `/api/user/signup`
 Create a new user account
 ```json
 {
