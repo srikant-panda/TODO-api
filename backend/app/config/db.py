@@ -10,28 +10,22 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession,async_sessionmaker,create_async_engine
 
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Inherits the base class which used to create SQLAlchemy models.
 from sqlalchemy.orm import DeclarativeBase
 
 # Connection String
 # Use "db" instead of "localhost" when running inside Docker
-# DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@db:5432/todo_db")
-# DATABASE_URL = 'postgresql+asyncpg://admin:admin@localhost:5432/todo_db'
-DATABASE_URL = 'postgresql+asyncpg://postgres:Srikant#6861@db.cedqpthfhcvenqaspvfx.supabase.co:5432/postgres'
-
-# Log the connection URL (masking password) for debugging
-# masked_url = DATABASE_URL
-# if "@" in masked_url:
-#     prefix, rest = masked_url.split("://", 1)
-#     auth, host = rest.split("@", 1)
-#     masked_url = f"{prefix}://****@{host}"
-# print(f"Connecting to database: {masked_url}")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://admin:admin@localhost:5432/todo_db")
 
 # Render provides a connection string that starts with postgres://
 # asyncpg requires it to start with postgresql+asyncpg://
-# if DATABASE_URL.startswith("postgres://"):
-#     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
 
 # Scheme Name
 DEFAULT_SCHEMA_NAME = "TODO_S"

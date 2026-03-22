@@ -24,6 +24,14 @@ FastAPI-based TODO backend with **JWT authentication**, **PostgreSQL**, **SQLAlc
 - **slowapi** - Rate limiting
 - **uvicorn** - ASGI server
 
+## Configuration
+
+Create a `.env` file in the `backend/` directory with the following content:
+
+```env
+DATABASE_URL=postgresql+asyncpg://admin:admin@localhost:5432/todo_db
+```
+
 ## Project Structure
 
 ```text
