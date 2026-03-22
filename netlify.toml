@@ -1,0 +1,20 @@
+# Netlify Configuration File
+# Documentation: https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  # The directory that contains the deploy-ready signals of your site.
+  # For Vite, this is usually 'dist'
+  publish = "frontend/dist"
+
+  # The command that will be run to build your site
+  command = "cd frontend && npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redirects for Single Page Applications (React Router)
+# This ensures that all paths redirect to index.html so React can handle the routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
