@@ -42,12 +42,7 @@ app = FastAPI(lifespan=lifespan)  # Call  the lifespan.
 # Frontend (Vite dev server or static host) — allows cookies/Authorization when using full API URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-        "http://[::1]:5173",
-        "https://todo-213.netlify.app/"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
