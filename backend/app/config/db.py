@@ -43,7 +43,7 @@ engine = create_async_engine(
     DATABASE_URL,
     echo = True,  # Print the queries in the terminal 
     future = True, # it enforce the SQLAlchemy to use 2.x version
-    connect_args = {"ssl":"require"}
+    connect_args = {"statement_cache_size":0}
 )
 
 # Used to create a new session for each db request
