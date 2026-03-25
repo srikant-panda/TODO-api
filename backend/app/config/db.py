@@ -43,6 +43,7 @@ engine = create_async_engine(
     DATABASE_URL,
     echo = True,  # Print the queries in the terminal 
     future = True, # it enforce the SQLAlchemy to use 2.x version
+    connect_args = {"ssl":"require"}
 )
 
 # Used to create a new session for each db request
@@ -51,7 +52,6 @@ AsyncSessionLocal = async_sessionmaker(
     bind= engine, # specifies which engine to use
     class_ = AsyncSession, # create asynchroneous request or response
     expire_on_commit=False, # So that data will be accessible even after commit.
-    connect_args = {"ssl":"require"}
 )
 
 

@@ -19,14 +19,16 @@ import json
 async def lifespan(app : FastAPI) :
     #Startup logic 
     print("Application startup")
+    try:
+        async with engine.begin() as conn:
+            
+            # Create scheme if not exists
+            await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{DEFAULT_SCHEMA_NAME}"'))
 
-    async with engine.begin() as conn:
-        
-        # Create scheme if not exists
-        await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{DEFAULT_SCHEMA_NAME}"'))
-
-        # Create all tables
-        await conn.run_sync(Base.metadata.create_all)
+            # Create all tables
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        print("Database error:",str(e))
     yield  # Run the app
 
 
