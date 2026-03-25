@@ -50,7 +50,8 @@ engine = create_async_engine(
 AsyncSessionLocal = async_sessionmaker(
     bind= engine, # specifies which engine to use
     class_ = AsyncSession, # create asynchroneous request or response
-    expire_on_commit=False # So that data will be accessible even after commit.
+    expire_on_commit=False, # So that data will be accessible even after commit.
+    connect_args = {"ssl":"require"}
 )
 
 
