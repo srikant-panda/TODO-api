@@ -100,6 +100,21 @@
   background: rgba(148, 163, 184, 0.16);
 }
 
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-left: 0.4rem;
+  padding-left: 0.8rem;
+  border-left: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.username {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
 .main {
   flex: 1;
   padding: 2.5rem 1.5rem 3rem;

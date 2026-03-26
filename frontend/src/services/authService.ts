@@ -4,6 +4,7 @@ import {
   clearSession,
   getAccessToken,
   getRefreshToken,
+  getUser,
   isAuthenticated,
   logout,
   setSessionTokens,
@@ -34,11 +35,12 @@ export async function signIn(credentials: SignInCredentials): Promise<void> {
   setSessionTokens({
     accessToken: data.jwt_token,
     refreshToken: data.refresh_token ?? null,
+    user: data.user,
   });
 }
 
 export async function signUp(payload: SignUpPayload): Promise<SignUpResponse> {
-  return request<SignUpResponse>({
+  const data = await request<SignUpResponse>({
     path: "/api/user/signup",
     method: "POST",
     skipAuth: true,
@@ -49,12 +51,15 @@ export async function signUp(payload: SignUpPayload): Promise<SignUpResponse> {
       role: payload.role ?? "user",
     },
   });
+
+  return data;
 }
 
 export {
   clearSession,
   getAccessToken,
   getRefreshToken,
+  getUser,
   isAuthenticated,
   logout,
   setSessionTokens,

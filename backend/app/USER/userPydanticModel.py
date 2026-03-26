@@ -32,5 +32,13 @@ class UserSignIn(BaseModel):
 class UserSignInResponse(Base):
     token : str
 
+class UserProfile(BaseModel):
+    id : UUID
+    name : str
+    email: EmailStr
+    role : str
+    model_config = ConfigDict(from_attributes=True)
+
 class JwtOut(Base):
     jwt_token : str
+    user : UserProfile

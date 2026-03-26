@@ -1,17 +1,16 @@
-import type { JwtSignInResponse, TokenPairResponse } from "@/types/api";
+import type { JwtSignInResponse, TokenPairResponse, User } from "@/types/api";
 import { authConfig, resolveApiUrl } from "./authConfig";
 
 const LS_ACCESS = "todo_api_access_token";
 const LS_REFRESH = "todo_api_refresh_token";
+const LS_USER = "todo_api_user";
 
 /**
  * Single source of truth for session tokens.
- * Access token is synced to localStorage so refresh (F5) keeps the session.
- * Refresh token (when the backend adds it) is stored the same way for now;
- * production can switch refresh to httpOnly cookies without changing pages.
  */
 let accessToken: string | null = null;
 let refreshToken: string | null = null;
+let user: User | null = null;
 
 const listeners = new Set<() => void>();
 
@@ -24,6 +23,10 @@ function readStorage(): void {
   try {
     accessToken = localStorage.getItem(LS_ACCESS);
     refreshToken = localStorage.getItem(LS_REFRESH);
+    const savedUser = localStorage.getItem(LS_USER);
+    if (savedUser) {
+      user = JSON.parse(savedUser);
+    }
   } catch {
     /* private mode / disabled storage */
   }
@@ -41,6 +44,11 @@ function writeStorage(): void {
       localStorage.setItem(LS_REFRESH, refreshToken);
     } else {
       localStorage.removeItem(LS_REFRESH);
+    }
+    if (user) {
+      localStorage.setItem(LS_USER, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(LS_USER);
     }
   } catch {
     /* quota */
@@ -62,6 +70,10 @@ export function getRefreshToken(): string | null {
   return refreshToken;
 }
 
+export function getUser(): User | null {
+  return user;
+}
+
 export function isAuthenticated(): boolean {
   return Boolean(accessToken);
 }
@@ -73,10 +85,14 @@ export function isAuthenticated(): boolean {
 export function setSessionTokens(tokens: {
   accessToken: string;
   refreshToken?: string | null;
+  user?: User | null;
 }) {
   accessToken = tokens.accessToken;
   if (tokens.refreshToken !== undefined) {
     refreshToken = tokens.refreshToken;
+  }
+  if (tokens.user !== undefined) {
+    user = tokens.user;
   }
   writeStorage();
   emit();
@@ -85,6 +101,7 @@ export function setSessionTokens(tokens: {
 export function clearSession() {
   accessToken = null;
   refreshToken = null;
+  user = null;
   writeStorage();
   emit();
 }

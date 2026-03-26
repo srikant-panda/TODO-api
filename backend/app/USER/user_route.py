@@ -1,7 +1,7 @@
 from fastapi import APIRouter,Depends,HTTPException
 from passlib.context import CryptContext
 from app.models import UserModel
-from .userPydanticModel import UserCreateOut,User,UserSignIn,Base,JwtOut
+from .userPydanticModel import UserCreateOut,User,UserSignIn,Base,JwtOut,UserProfile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,exists
 from app.config import get_db
@@ -45,4 +45,8 @@ async def signin(signin_payload : UserSignIn, db : AsyncSession = Depends(get_db
     
     token = JwtService().encode(id=str(user_model.id))
     
-    return JwtOut(jwt_token=token,msg="User Signed in")
+    return JwtOut(
+        jwt_token=token,
+        msg="User Signed in",
+        user=UserProfile.model_validate(user_model)
+    )

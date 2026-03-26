@@ -9,6 +9,7 @@ export type ApiErrorBody = {
 export type JwtSignInResponse = {
   jwt_token: string;
   msg: string;
+  user: User;
   /** Present when backend adds refresh-token flow */
   refresh_token?: string | null;
 };

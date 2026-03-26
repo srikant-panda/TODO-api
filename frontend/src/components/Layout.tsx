@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import styles from "./Layout.module.css";
 
 export function Layout() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === "/";
   const isTasks = location.pathname.startsWith("/tasks");
@@ -34,9 +34,12 @@ export function Layout() {
               >
                 Tasks
               </NavLink>
-              <button type="button" className={styles.linkButton} onClick={logout}>
-                Sign out
-              </button>
+              <div className={styles.profile}>
+                <span className={styles.username}>{user?.name}</span>
+                <button type="button" className={styles.linkButton} onClick={logout}>
+                  Sign out
+                </button>
+              </div>
             </>
           ) : (
             <>
